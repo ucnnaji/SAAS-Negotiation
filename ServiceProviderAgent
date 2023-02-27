@@ -1,0 +1,29 @@
+import jade.core.Agent;
+import jade.core.behaviours.CyclicBehaviour;
+import jade.lang.acl.ACLMessage;
+
+public class ServiceProviderAgent extends Agent {
+    protected void setup() {
+        System.out.println("Service Provider Agent " + getAID().getName() + " just checking if its ready.");
+        
+        // Listen for request from Customer Agent
+        addBehaviour(new CyclicBehaviour() {
+            public void action() {
+                ACLMessage message = receive();
+                if (message != null) {
+                    if (message.getPerformative() == ACLMessage.REQUEST) {
+                        System.out.println("SLA negotiation request received from Customer Agent: " + message.getContent());
+                        
+                        // Propose the SLA
+                        ACLMessage reply = message.createReply();
+                        reply.setPerformative(ACLMessage.PROPOSE);
+                        reply.setContent("SLA proposal details");
+                        send(reply);
+                    } else {
+                        block();
+                    }
+                }
+            }
+        });
+    }
+}
